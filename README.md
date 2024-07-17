@@ -9,17 +9,17 @@ Category PCI Passthrough
 
 ##### Hello Hades Canyon Owners (and other visitors as well),
 
-##### Recently last year I bought a new Intel NUC Hades Canyon. Lovely little computer! 
+##### Recently last year I bought a new Intel NUC Hades Canyon. Lovely little computer!
 
 ##### One of the things I was planning for it was to connect it to my e-drum so I could trigger VST’s. I wanted to have a always on “VST Ready” computer. Things were working nice. Then came a new Sony Android TV, and two Nintendo Pro Controllers to go with it, just for fun. It was nice playing Android games for a while.
 
-##### At this point, I was using a Windows 10 installation with all the DAW/VST software configured and had a Vega M RH GPU doing basically nothing, so instead of running games on the Android TV I could run better ones in the Hades Canyon and stream them to the TV, with Steam Link and whatnot. 
+##### At this point, I was using a Windows 10 installation with all the DAW/VST software configured and had a Vega M RH GPU doing basically nothing, so instead of running games on the Android TV I could run better ones in the Hades Canyon and stream them to the TV, with Steam Link and whatnot.
 
 ##### Things got mixed quickly. I found myself wanting to separate both applications to separate machines, and for me buying a new computer was not an option.
 
 ##### I did an experiment with type 2 hypervisors using USB to Ethernet applications, but audio was crackling all over has it had, just by the service overhead itself, two extra layers of latency, one for the host and another for the guest. Not Good.
 
-##### I did another experiment this time passing through the TD-30 e-Drum Module as an USB device to the guest machine, using the same type 2 hypervisor, but the needs were demanding, i needed less than 3ms latency and type 2 hypervisors add extra layers of latency between the host application layer, the hypervisor, and the guest machine, so the audio buffers were just not fast enough. 
+##### I did another experiment this time passing through the TD-30 e-Drum Module as an USB device to the guest machine, using the same type 2 hypervisor, but the needs were demanding, i needed less than 3ms latency and type 2 hypervisors add extra layers of latency between the host application layer, the hypervisor, and the guest machine, so the audio buffers were just not fast enough.
 
 ##### Hades Canyon is VT-d and VT-x ready, so I started looking into type 1 hypervisors and tried most of them:
 
@@ -228,7 +228,7 @@ graphics.
 
 #### ![](./media/image17.png)
 
-#### Note: Automatic Storage Configuration will create a fedora-root partition with about 15GB. Leave it as it is as we will extend this partition later. 
+#### Note: Automatic Storage Configuration will create a fedora-root partition with about 15GB. Leave it as it is as we will extend this partition later.
 
 #### Extending this partition will be necessary to build the new Kernel with ACS Patch ( 2 hour process and an additional 35GB needed )
 
@@ -236,7 +236,7 @@ graphics.
 
 ## 2.4 Software selection
 
-#### Select Headless Management, Editors, Headless Virtualization and Windows File Server 
+#### Select Headless Management, Editors, Headless Virtualization and Windows File Server
 
 #### You don’t need to install the basic Web Server to have the Cockpit.
 
@@ -277,7 +277,7 @@ If you are unsure what your host IP is, you have to log physically to
 the host using your root/password you set during the installation and
 run:
 
-### ip a s \| grep “inet”
+#### ip a s \| grep “inet”
 
 #### It should return something like this:
 
@@ -285,213 +285,213 @@ run:
 
 # Step 4. Extend fedora-root partition to be able to build custom kernel
 
-### lvextend -L 50GB /dev/mapper/fedora-root
+#### lvextend -L 50GB /dev/mapper/fedora-root
 
-### xfs_growfs /
+#### xfs_growfs /
 
 # Step 5. Creating a Host datastore to be shared among VM's
 
 ## 5.1 Find out FREE Phyisical extent Size with vgdisplay:
 
-### Free PE / Size 236017 / 921.94 GiB 
+#### Free PE / Size 236017 / 921.94 GiB
 
 ## 5.2 And use that space to create your new logical volume:
 
-### lvcreate -L 921.94GB -n datastore fedora
+#### lvcreate -L 921.94GB -n datastore fedora
 
 ## 5.3 Format it with ext4 filesystem:
 
-### mkfs -t ext4 /dev/mapper/fedora-datastore
+#### mkfs -t ext4 /dev/mapper/fedora-datastore
 
 ## 5.4 create new label for datastore logical volume
 
-### e2label /dev/mapper/fedora-datastore datastore
+#### e2label /dev/mapper/fedora-datastore datastore
 
-### mkdir /datastore
+#### mkdir /datastore
 
 ## 5.5 Mount this label permenantely by changing fstab file:
 
-### vi /etc/fstab
+#### vi /etc/fstab
 
-#### Add the line: 
+#### Add the line:
 
-### /dev/mapper/fedora-datastore /datastore ext4 defaults 1 2
+#### /dev/mapper/fedora-datastore /datastore ext4 defaults 1 2
 
 ## 5.6 Mount this label for the session
 
-### mount /datastore
+#### mount /datastore
 
 ## 5.7 You can create new /datastore/iso folder and copy Windows 10 ISO images there.
 
-### mkdir /datastore/iso
+#### mkdir /datastore/iso
 
 #### (You can use WinSCP and connect using SFTP with same the SSH credentials )
 
 ## 5.8 This installation comes with fedora samba service pre installed, but we require semanage to configure SELinux on a permanent basis so will need:
 
-### sudo yum provides /usr/sbin/semanage
+#### sudo yum provides /usr/sbin/semanage
 
-### sudo yum install policycoreutils-python-utils-2.8-17.fc29.noarch
+#### sudo yum install policycoreutils-python-utils-2.8-17.fc29.noarch
 
-### sudo systemctl enable smb nmb
+#### sudo systemctl enable smb nmb
 
 ## 5.9 Permanent SELinux /datastore configuration as a samba share:
 
-### sudo semanage fcontext -a -t samba_share_t "/datastore(/.\*)?"
+#### sudo semanage fcontext -a -t samba_share_t "/datastore(/.\*)?"
 
-### sudo restorecon -Rv /datastore
+#### sudo restorecon -Rv /datastore
 
 ## 5.10 Edit samba configuration file remove all other lines and add \[datastore\] lines:
 
-### vi /etc/samba/smb.conf
+#### vi /etc/samba/smb.conf
 
-### 
+###
 
-### \# See smb.conf.example for a more detailed config file or
+#### \# See smb.conf.example for a more detailed config file or
 
-### \# read the smb.conf manpage.
+#### \# read the smb.conf manpage.
 
-### \# Run 'testparm' to verify the config is correct after
+#### \# Run 'testparm' to verify the config is correct after
 
-### \# you modified it.
+#### \# you modified it.
 
-### 
+###
 
-### \[datastore\]
+#### \[datastore\]
 
-### comment = Data Store Directory
+#### comment = Data Store Directory
 
-### public = no
+#### public = no
 
-### security = user
+#### security = user
 
-### path = /datastore
+#### path = /datastore
 
-### force user = root
+#### force user = root
 
-### force group = root
+#### force group = root
 
-### directory mask = 0777
+#### directory mask = 0777
 
-### create mask = 0777
+#### create mask = 0777
 
-### browsable =yes
+#### browsable =yes
 
-### writable = yes
+#### writable = yes
 
-### guest ok = yes
+#### guest ok = yes
 
-### read only = no
+#### read only = no
 
 ## 5.11 Add Samba firewall rules 
 
-### sudo firewall-cmd --add-service=samba --permanent
+#### sudo firewall-cmd --add-service=samba --permanent
 
-### sudo firewall-cmd --reload
+#### sudo firewall-cmd --reload
 
 ## 5.12 Add a windows user account to samba
 
-### sudo smbpasswd -a ministro
+#### sudo smbpasswd -a ministro
 
-###  New SMB password:
+####  New SMB password:
 
-###  Retype new SMB password:
+####  Retype new SMB password:
 
-###  Added user ministro.
+####  Added user ministro.
 
 ## 5.13 Restart SMB
 
-### sudo systemctl restart smb nmb
+#### sudo systemctl restart smb nmb
 
 # Step 6. Create a script to check IOMMU Groups and change GRUB initialization parameters
 
 ## 6.1 Creating a IOMMU check script 
 
-### vi /datastore/iommu/iommu_check.sh
+#### vi /datastore/iommu/iommu_check.sh
 
-### 
+###
 
-### Paste to it the following lines:
+#### Paste to it the following lines:
 
-### \#(optional) check pci device iommu mapping 
+#### \#(optional) check pci device iommu mapping
 
-### \#!/bin/bash
+#### \#!/bin/bash
 
-### shopt -s nullglob
+#### shopt -s nullglob
 
-### for d in /sys/kernel/iommu_groups/\*/devices/\*; do 
+#### for d in /sys/kernel/iommu_groups/\*/devices/\*; do
 
-###  n=\${d#\*/iommu_groups/\*}; n=\${n%%/\*}
+####  n=\${d#\*/iommu_groups/\*}; n=\${n%%/\*}
 
-###  printf 'IOMMU Group %s ' "\$n"
+####  printf 'IOMMU Group %s ' "\$n"
 
-###  lspci -nns "\${d##\*/}"
+####  lspci -nns "\${d##\*/}"
 
-### done;
+#### done;
 
 ## 6.2 To check current IOMMU groups before applying ACS Patched Kernel you add to /etc/default/grub the following line:
 
-### GRUB_CMDLINE_LINUX="resume=/dev/mapper/fedora-swap rd.lvm.lv=fedora/root rd.lvm.lv=fedora/swap rhgb intel_iommu=on"
+#### GRUB_CMDLINE_LINUX="resume=/dev/mapper/fedora-swap rd.lvm.lv=fedora/root rd.lvm.lv=fedora/swap rhgb intel_iommu=on"
 
 ## 6.3 Build grub with new paremeters and reboot
 
-### sudo grub2-m-+
+#### sudo grub2-m-+
 
-### kconfig -o /etc/grub2-efi.cfg
+#### kconfig -o /etc/grub2-efi.cfg
 
-### sudo reboot
+#### sudo reboot
 
 ## 6.4 Check IOMMU Groups:
 
-### /datastore/iommu/iommu_check.sh
+#### /datastore/iommu/iommu_check.sh
 
 # Step 7. Building Custom Kernel with the ACS Patch
 
 ## 7.1 Start by installing dependencies
 
-### sudo dnf groupinstall "Development Tools"
+#### sudo dnf groupinstall "Development Tools"
 
-### sudo dnf install rpmdevtools
+#### sudo dnf install rpmdevtools
 
-### sudo dnf build-dep kernel
+#### sudo dnf build-dep kernel
 
 ## 7.2 Create a new rpm folder tree
 
-### rpmdev-setuptree
+#### rpmdev-setuptree
 
 ## 7.3 .Download kernel source
 
-### cd ~/rpmbuild/SOURCES
+#### cd ~/rpmbuild/SOURCES
 
-### sudo dnf download --source kernel
+#### sudo dnf download --source kernel
 
 ## 7.4 Extract cpio archive from RPM Package 
 
-### rpm2cpio kernel-\* \| cpio -i --make-directories
+#### rpm2cpio kernel-\* \| cpio -i --make-directories
 
-### mv kernel-\*.src.rpm ../SRPMS
+#### mv kernel-\*.src.rpm ../SRPMS
 
 ## 7.5 Create a new file in /datastore/kerne/ linux-vfio.patch 
 
 #### Use wget to get the latest ACS Patch and place it in newly create RPM SOURCES folder.
 
-### wget https://aur.archlinux.org/cgit/aur.git/plain/add-acs-overrides.patch?h=linux-vfio -O ~/rpmbuild/SOURCES/linux-vfio.patch
+#### wget https://aur.archlinux.org/cgit/aur.git/plain/add-acs-overrides.patch?h=linux-vfio -O ~/rpmbuild/SOURCES/linux-vfio.patch
 
 ## 7.6 Now move the kernel.spec file into the SPECS folder and change to that directory:
 
-### mv kernel.spec ../SPECS
+#### mv kernel.spec ../SPECS
 
-### mv kernel.spec ~/rpmbuild/SPECS
+#### mv kernel.spec ~/rpmbuild/SPECS
 
 ## 7.7 Edit Kernel.spec file and change buildid:
 
-### vi ~/rpmbuild/SPECS/kernel.spec
+#### vi ~/rpmbuild/SPECS/kernel.spec
 
 #### and replace where it says:
 
-### \# define buildid .local 
+#### \# define buildid .local
 
-### With: %define buildid .ACSpatched
+#### With: %define buildid .ACSpatched
 
 #### (should be at about line 26.)
 
@@ -499,179 +499,179 @@ run:
 
 #### 7.8.1 Save Kernel.spec exit editor and check “END OF PATCH DEFINITIONS” line :
 
-### cat ~/rpmbuild/SPECS/kernel.spec \| grep "END OF PATCH DEFINITIONS" -n
+#### cat ~/rpmbuild/SPECS/kernel.spec \| grep "END OF PATCH DEFINITIONS" -n
 
 #### 7.8.2 Edit Kernel.spec again and go to that line:
 
-### ~/rpmbuild/SPECS/kernel.spec
+#### ~/rpmbuild/SPECS/kernel.spec
 
 #### 7.8.3 Just above that line add for instance:
 
-### Patch998: linux-vfio.patch
+#### Patch998: linux-vfio.patch
 
 ## 7.9 Build kernel:
 
-### rpmbuild -ba kernel.spec
+#### rpmbuild -ba kernel.spec
 
 #### Note: This process will take about one hour on the Hades Canyon.
 
 #### When it finishes, an output of “exit 0” means success:
 
-### Executing(%clean): /bin/sh -e /var/tmp/rpm-tmp.eptDlx
+#### Executing(%clean): /bin/sh -e /var/tmp/rpm-tmp.eptDlx
 
-### + umask 022
+#### + umask 022
 
-### + cd /root/rpmbuild/BUILD
+#### + cd /root/rpmbuild/BUILD
 
-### + cd kernel-4.20.fc29
+#### + cd kernel-4.20.fc29
 
-### + /usr/bin/rm -rf /root/rpmbuild/BUILDROOT/kernel-4.20.13-200.patched.fc29.x86_64
+#### + /usr/bin/rm -rf /root/rpmbuild/BUILDROOT/kernel-4.20.13-200.patched.fc29.x86_64
 
-### + exit 0
+#### + exit 0
 
-### \[root@localhost SPECS\]#
+#### \[root@localhost SPECS\]#
 
 ## 7.10 Finally install custom ACS Patched kernel to your grub menu:
 
-### su -c "rpm -ivh /root/rpmbuild/RPMS/x86_64/kernel-core-4.20.13-200.patched.fc29.x86_64.rpm"
+#### su -c "rpm -ivh /root/rpmbuild/RPMS/x86_64/kernel-core-4.20.13-200.patched.fc29.x86_64.rpm"
 
 # Step 8. Change GRUB initialization parameters for the final ACS and CPU configuration
 
 ## 8.1 Edit your grub file
 
-### vi /etc/default/grub
+#### vi /etc/default/grub
 
 ## 8.2 Change GRUB_CMDLINE_LINUX line to:
 
-### GRUB_CMDLINE_LINUX="resume=/dev/mapper/fedora-swap rd.lvm.lv=fedora/root rd.lvm.lv=fedora/swap rhgb intel_iommu=on pcie_acs_override=downstream intel_pstate=disable default_hugepagesz=1GB hugepagesz=1GB hugepages=64 isolcpus=1-7 nosoftlockup mce=ignore_ce idle=poll"
+#### GRUB_CMDLINE_LINUX="resume=/dev/mapper/fedora-swap rd.lvm.lv=fedora/root rd.lvm.lv=fedora/swap rhgb intel_iommu=on pcie_acs_override=downstream intel_pstate=disable default_hugepagesz=1GB hugepagesz=1GB hugepages=64 isolcpus=1-7 nosoftlockup mce=ignore_ce idle=poll"
 
 #### Parameter descriptions:
 
-### intel_iommu=on
+#### intel_iommu=on
 
-#### Activates Intel VT-d CPU extensions for the kernel 
+#### Activates Intel VT-d CPU extensions for the kernel
 
-### pcie_acs_override=downstream
+#### pcie_acs_override=downstream
 
 #### Allows you to manipulate IOMMU groups ( there is an increased risk for data corruption on your HDD/SSD if peer-to-peer DMA communications are not well isolated )
 
-### intel_pstate=disable
+#### intel_pstate=disable
 
 #### Sets the power governor to disable. The power governor will be called at the Hook configuration and for me i like it this way.
 
 #### But you can also set this value to performance, this way you wouldn't have to call the governor on the Hook with "cpupower frequency-set --governor performance"
 
-#### In performance mode, what this does is that it tells all CPU's to set themselves to the same highest frequency available. 
+#### In performance mode, what this does is that it tells all CPU's to set themselves to the same highest frequency available.
 
-### default_hugepagesz=1GB hugepagesz=1GB hugepages=64
+#### default_hugepagesz=1GB hugepagesz=1GB hugepages=64
 
 #### Huge pages can benefit not only the host but also guests
 
-### isolcpus=1-7
+#### isolcpus=1-7
 
 #### To isolate certain CPU cores from userspace threads. After booting you can confirm isolation in most cases with "cat /sys/devices/system/cpu/isolated"
 
-### nosoftlockup
+#### nosoftlockup
 
-#### Helps avoiding per-cpu kernel threads that may never execute, potentially leading to unexpected behavior such as very large latency spikes or interruptions in network traffic. 
+#### Helps avoiding per-cpu kernel threads that may never execute, potentially leading to unexpected behavior such as very large latency spikes or interruptions in network traffic.
 
-### mce=ignore_ce
+#### mce=ignore_ce
 
-#### Ignores corrected errors and associated scans that can cause periodic latency spikes. 
+#### Ignores corrected errors and associated scans that can cause periodic latency spikes.
 
-### idle=poll
+#### idle=poll
 
 #### keeps processors at their maximum frequency and c-state
 
 ## 8.3 Save file and build grub configuration
 
-### sudo grub2-mkconfig -o /etc/grub2-efi.cfg
+#### sudo grub2-mkconfig -o /etc/grub2-efi.cfg
 
 ## 8.4 Reboot and check IOMMU groups now with ACS patch enabled:
 
-### /datastore/iommu/iommu_check.sh
+#### /datastore/iommu/iommu_check.sh
 
 # Step 9. VM CPU Considerations 
 
 ## 9.1 To get your CPU Tune settings install dependencies and run "lstopo"
 
-### sudo dnf install hwloc-libs hwloc-gui
+#### sudo dnf install hwloc-libs hwloc-gui
 
 #### lstopo output for the Hades Canyon with our vCPU strategy:
 
-### Machine (31GB)
+#### Machine (31GB)
 
-###  Package L#0 + L3 L#0 (8192KB)
+####  Package L#0 + L3 L#0 (8192KB)
 
-###  L2 L#0 (256KB) + L1d L#0 (32KB) + L1i L#0 (32KB) + Core L#0
+####  L2 L#0 (256KB) + L1d L#0 (32KB) + L1i L#0 (32KB) + Core L#0
 
-###  PU L#0 (P#0) - hyper-threaded Core for Host
+####  PU L#0 (P#0) - hyper-threaded Core for Host
 
-###  PU L#1 (P#4) - hyper-threaded Core for guest VM Joia
+####  PU L#1 (P#4) - hyper-threaded Core for guest VM Joia
 
-###  L2 L#1 (256KB) + L1d L#1 (32KB) + L1i L#1 (32KB) + Core L#1
+####  L2 L#1 (256KB) + L1d L#1 (32KB) + L1i L#1 (32KB) + Core L#1
 
-###  PU L#2 (P#1) \\ hyper-threaded Core Pair for guest VM Fluido
+####  PU L#2 (P#1) \\ hyper-threaded Core Pair for guest VM Fluido
 
-###  PU L#3 (P#5) /
+####  PU L#3 (P#5) /
 
-###  L2 L#2 (256KB) + L1d L#2 (32KB) + L1i L#2 (32KB) + Core L#2
+####  L2 L#2 (256KB) + L1d L#2 (32KB) + L1i L#2 (32KB) + Core L#2
 
-###  PU L#4 (P#2) \\ hyper-threaded Core Pair for guest VM Fluido
+####  PU L#4 (P#2) \\ hyper-threaded Core Pair for guest VM Fluido
 
-###  PU L#5 (P#6) /
+####  PU L#5 (P#6) /
 
-###  L2 L#3 (256KB) + L1d L#3 (32KB) + L1i L#3 (32KB) + Core L#3
+####  L2 L#3 (256KB) + L1d L#3 (32KB) + L1i L#3 (32KB) + Core L#3
 
-###  PU L#6 (P#3) \\ hyper-threaded Core Pair for guest VM Joia
+####  PU L#6 (P#3) \\ hyper-threaded Core Pair for guest VM Joia
 
-###  PU L#7 (P#7) /
+####  PU L#7 (P#7) /
 
 #### So we will define something like this:
 
-### \<cputune\>
+#### \<cputune\>
 
-###  \<vcpupin vcpu='0' cpuset='1'/\>
+####  \<vcpupin vcpu='0' cpuset='1'/\>
 
-###  \<vcpupin vcpu='1' cpuset='5'/\>
+####  \<vcpupin vcpu='1' cpuset='5'/\>
 
-###  \<vcpupin vcpu='2' cpuset='2'/\>
+####  \<vcpupin vcpu='2' cpuset='2'/\>
 
-###  \<vcpupin vcpu='3' cpuset='6'/\>
+####  \<vcpupin vcpu='3' cpuset='6'/\>
 
-### \</cputune\>
+#### \</cputune\>
 
 #### This can be created using virt-install like this:
 
-### --cputune vcpupin0.vcpu=0,vcpupin0.cpuset=1,vcpupin1.vcpu=1,vcpupin1.cpuset=5,vcpupin2.vcpu=2,vcpupin2.cpuset=2,vcpupin3.vcpu=3,vcpupin3.cpuset=6 \\
+#### --cputune vcpupin0.vcpu=0,vcpupin0.cpuset=1,vcpupin1.vcpu=1,vcpupin1.cpuset=5,vcpupin2.vcpu=2,vcpupin2.cpuset=2,vcpupin3.vcpu=3,vcpupin3.cpuset=6 \\
 
 #### Numatune is another performance factor, but more server oriented where numa nodes are greater than one. In the case of Hades Canyon, there is only one numa node:
 
-### sudo dnf install numactl
+#### sudo dnf install numactl
 
-### numactl --hardware
+#### numactl --hardware
 
-### 
+###
 
-###  available: 1 nodes (0) \<----------
+####  available: 1 nodes (0) \<----------
 
-###  node 0 cpus: 0 1 2 3 4 5 6 7
+####  node 0 cpus: 0 1 2 3 4 5 6 7
 
-###  node 0 size: 32147 MB
+####  node 0 size: 32147 MB
 
-###  node 0 free: 1706 MB
+####  node 0 free: 1706 MB
 
-###  node distances:
+####  node distances:
 
-###  node 0
+####  node 0
 
-###  0: 10
+####  0: 10
 
 #### There are many options you can use in virt-install and for this setup i found OVMF UEFI Loader and Q35 Express Chipset Emulation to work the best.
 
 #### I also import CPU feature flags (remove osxsave) that i got using:
 
-### virsh capabilities \| grep "feature name"
+#### virsh capabilities \| grep "feature name"
 
 #### To further improve performance, with significant gains, the guest vm creation accounts for:
 
@@ -691,127 +691,127 @@ Putting it all together.
 
 ## 10.1 Prepare Fluido by creating xml configuration and create a new qcow disk file:
 
-### mkdir /datastore/vms
+#### mkdir /datastore/vms
 
-### 
+###
 
-### virt-install \\
+#### virt-install \\
 
-### -n fluido \\
+#### -n fluido \\
 
-### --boot uefi,loader=/usr/share/OVMF/OVMF_CODE.fd,loader_ro=yes,loader_type=pflash \\
+#### --boot uefi,loader=/usr/share/OVMF/OVMF_CODE.fd,loader_ro=yes,loader_type=pflash \\
 
-### --description "fluido" \\
+#### --description "fluido" \\
 
-### --ram=8192 \\
+#### --ram=8192 \\
 
-### --arch 'x86_64' \\
+#### --arch 'x86_64' \\
 
-### --machine 'pc-q35-3.0' \\
+#### --machine 'pc-q35-3.0' \\
 
-### --memorybacking hugepages=yes \\
+#### --memorybacking hugepages=yes \\
 
-### --vcpus 4,placement=static,cores=4,sockets=1,threads=1 \\
+#### --vcpus 4,placement=static,cores=4,sockets=1,threads=1 \\
 
-### --cputune vcpupin0.vcpu=0,vcpupin0.cpuset=1,vcpupin1.vcpu=1,vcpupin1.cpuset=5,vcpupin2.vcpu=2,vcpupin2.cpuset=2,vcpupin3.vcpu=3,vcpupin3.cpuset=6 \\
+#### --cputune vcpupin0.vcpu=0,vcpupin0.cpuset=1,vcpupin1.vcpu=1,vcpupin1.cpuset=5,vcpupin2.vcpu=2,vcpupin2.cpuset=2,vcpupin3.vcpu=3,vcpupin3.cpuset=6 \\
 
-### --cpu host-passthrough,cache.mode=passthrough,-hypervisor,+vme,+ds,+acpi,+ss,+ht,+tm,+pbe,+dtes64,+monitor,+ds_cpl,+vmx,+est,+tm2,+xtpr,+pdcm,+f16c,+rdrand,+arat,+tsc_adjust,+mpx,+clflushopt,+ssbd,+xsaveopt,+xsavec,+xgetbv1,+xsaves,+pdpe1gb,+abm,+invtsc,cache.mode=emulate,cache.level=3, \\
+#### --cpu host-passthrough,cache.mode=passthrough,-hypervisor,+vme,+ds,+acpi,+ss,+ht,+tm,+pbe,+dtes64,+monitor,+ds_cpl,+vmx,+est,+tm2,+xtpr,+pdcm,+f16c,+rdrand,+arat,+tsc_adjust,+mpx,+clflushopt,+ssbd,+xsaveopt,+xsavec,+xgetbv1,+xsaves,+pdpe1gb,+abm,+invtsc,cache.mode=emulate,cache.level=3, \\
 
-### --disk path=/datastore/vms/fluido.qcow2,size=50,bus=virtio \\
+#### --disk path=/datastore/vms/fluido.qcow2,size=50,bus=virtio \\
 
-### --disk /datastore/iso/SW_DVD9_Win_Pro_Ent_Edu_N_10_1803_64BIT_English\_-3_MLF_X21-82160.ISO,device=cdrom,bus=sata \\
+#### --disk /datastore/iso/SW_DVD9_Win_Pro_Ent_Edu_N_10_1803_64BIT_English\_-3_MLF_X21-82160.ISO,device=cdrom,bus=sata \\
 
-### --disk /datastore/iso/virtio-win-0.1.141.iso,device=cdrom,bus=sata \\
+#### --disk /datastore/iso/virtio-win-0.1.141.iso,device=cdrom,bus=sata \\
 
-### --check path_in_use=off \\
+#### --check path_in_use=off \\
 
-### --os-type windows \\
+#### --os-type windows \\
 
-### --os-variant win10 \\
+#### --os-variant win10 \\
 
-### --memballoon none \\
+#### --memballoon none \\
 
-### --graphics vnc,listen=0.0.0.0,port=5901 --noautoconsole \\
+#### --graphics vnc,listen=0.0.0.0,port=5901 --noautoconsole \\
 
-### --host-device pci_0000_01_00_0 \\
+#### --host-device pci_0000_01_00_0 \\
 
-### --host-device pci_0000_01_00_1 \\
+#### --host-device pci_0000_01_00_1 \\
 
-### --host-device pci_0000_00_1f_3 \\
+#### --host-device pci_0000_00_1f_3 \\
 
-### --host-device pci_0000_05_00_0 \\
+#### --host-device pci_0000_05_00_0 \\
 
-### --host-device pci_0000_02_00_0 \\
+#### --host-device pci_0000_02_00_0 \\
 
-### --host-device pci_0000_00_02_0 --print-xml \>\> /datastore/vms/xml/fluido.xml
+#### --host-device pci_0000_00_02_0 --print-xml \>\> /datastore/vms/xml/fluido.xml
 
 ## 10.2 Prepare Fluido by creating xml configuration and create a new qcow disk file:
 
-### virt-install \\
+#### virt-install \\
 
-### -n joia \\
+#### -n joia \\
 
-### --boot uefi,loader=/usr/share/OVMF/OVMF_CODE.fd,loader_ro=yes,loader_type=pflash \\
+#### --boot uefi,loader=/usr/share/OVMF/OVMF_CODE.fd,loader_ro=yes,loader_type=pflash \\
 
-### --description "joia" \\
+#### --description "joia" \\
 
-### --ram=8192 \\
+#### --ram=8192 \\
 
-### --arch 'x86_64' \\
+#### --arch 'x86_64' \\
 
-### --machine 'pc-q35-3.0' \\
+#### --machine 'pc-q35-3.0' \\
 
-### --memorybacking hugepages=yes \\
+#### --memorybacking hugepages=yes \\
 
-### --vcpus 3,placement=static,cores=3,sockets=1,threads=1 \\
+#### --vcpus 3,placement=static,cores=3,sockets=1,threads=1 \\
 
-### --cputune vcpupin0.vcpu=0,vcpupin0.cpuset=4,vcpupin1.vcpu=1,vcpupin1.cpuset=3,vcpupin2.vcpu=2,vcpupin2.cpuset=7 \\
+#### --cputune vcpupin0.vcpu=0,vcpupin0.cpuset=4,vcpupin1.vcpu=1,vcpupin1.cpuset=3,vcpupin2.vcpu=2,vcpupin2.cpuset=7 \\
 
-### --cpu host-passthrough,cache.mode=passthrough,-hypervisor,+vme,+ds,+acpi,+ss,+ht,+tm,+pbe,+dtes64,+monitor,+ds_cpl,+vmx,+est,+tm2,+xtpr,+pdcm,+f16c,+rdrand,+arat,+tsc_adjust,+mpx,+clflushopt,+ssbd,+xsaveopt,+xsavec,+xgetbv1,+xsaves,+pdpe1gb,+abm,+invtsc,cache.mode=emulate,cache.level=3, \\
+#### --cpu host-passthrough,cache.mode=passthrough,-hypervisor,+vme,+ds,+acpi,+ss,+ht,+tm,+pbe,+dtes64,+monitor,+ds_cpl,+vmx,+est,+tm2,+xtpr,+pdcm,+f16c,+rdrand,+arat,+tsc_adjust,+mpx,+clflushopt,+ssbd,+xsaveopt,+xsavec,+xgetbv1,+xsaves,+pdpe1gb,+abm,+invtsc,cache.mode=emulate,cache.level=3, \\
 
-### --disk path=/datastore/vms/joia.qcow2,size=50,bus=virtio \\
+#### --disk path=/datastore/vms/joia.qcow2,size=50,bus=virtio \\
 
-### --disk /datastore/iso/SW_DVD9_Win_Pro_Ent_Edu_N_10_1803_64BIT_English\_-3_MLF_X21-82160.ISO,device=cdrom,bus=sata \\
+#### --disk /datastore/iso/SW_DVD9_Win_Pro_Ent_Edu_N_10_1803_64BIT_English\_-3_MLF_X21-82160.ISO,device=cdrom,bus=sata \\
 
-### --disk /datastore/iso/virtio-win-0.1.141.iso,device=cdrom,bus=sata \\
+#### --disk /datastore/iso/virtio-win-0.1.141.iso,device=cdrom,bus=sata \\
 
-### --check path_in_use=off \\
+#### --check path_in_use=off \\
 
-### --os-type windows \\
+#### --os-type windows \\
 
-### --os-variant win10 \\
+#### --os-variant win10 \\
 
-### --network network=host-bridge,model=virtio \\
+#### --network network=host-bridge,model=virtio \\
 
-### --memballoon none \\
+#### --memballoon none \\
 
-### --graphics vnc,listen=0.0.0.0,port=5902 --noautoconsole \\
+#### --graphics vnc,listen=0.0.0.0,port=5902 --noautoconsole \\
 
-### --host-device pci_0000_00_14_0 --print-xml \>\> /datastore/vms/xml/joia.xml
+#### --host-device pci_0000_00_14_0 --print-xml \>\> /datastore/vms/xml/joia.xml
 
 #### Check that the files were created:
 
-### \[root@localhost ~\]# ls /datastore/vms/xml -la
+#### \[root@localhost ~\]# ls /datastore/vms/xml -la
 
-### total 28
+#### total 28
 
-### drwxrwxrwx. 2 root root 4096 Mar 3 13:36 .
+#### drwxrwxrwx. 2 root root 4096 Mar 3 13:36 .
 
-### drwxrwxrwx. 3 root root 4096 Mar 3 13:36 ..
+#### drwxrwxrwx. 3 root root 4096 Mar 3 13:36 ..
 
-### -rw-r--r--. 1 root root 4488 Mar 3 13:30 fluido.xml
+#### -rw-r--r--. 1 root root 4488 Mar 3 13:30 fluido.xml
 
-### -rw-r--r--. 1 root root 3863 Mar 3 13:36 joia.xml
+#### -rw-r--r--. 1 root root 3863 Mar 3 13:36 joia.xml
 
 ## 10.3 Define VMs for VIRSH
 
-### sudo virsh define /datastore/vms/xml/fluido.xml
+#### sudo virsh define /datastore/vms/xml/fluido.xml
 
-### \#Domain fluido defined from /datastore/vms/xml/fluido.xml
+#### \#Domain fluido defined from /datastore/vms/xml/fluido.xml
 
-### sudo virsh define /datastore/vms/xml/joia.xml
+#### sudo virsh define /datastore/vms/xml/joia.xml
 
-### \#Domain joia defined from /datastore/vms/xml/joia.xml
+#### \#Domain joia defined from /datastore/vms/xml/joia.xml
 
 ## 10.4 Before starting up the guests, we need to prepare the system to allow memory reservations for the devices.
 
@@ -819,37 +819,37 @@ Putting it all together.
 
 #### We can accomplish this by executing the following:
 
-### echo 1 \> /sys/bus/pci/devices/0000\\00\\1f.3/remove
+#### echo 1 \> /sys/bus/pci/devices/0000\\00\\1f.3/remove
 
-### echo 1 \> /sys/bus/pci/rescan
+#### echo 1 \> /sys/bus/pci/rescan
 
 ## 10.5 You can confirm the creation of the new IOMMU group by calling the /datastore/iommu/iommu_check.sh , or by executing dmesg:
 
-### \[ 3.192474\] iommu: Adding device 0000:00:1f.3 to group 15
+#### \[ 3.192474\] iommu: Adding device 0000:00:1f.3 to group 15
 
-### \[ 7775.761904\] iommu: Removing device 0000:00:1f.3 from group 15
+#### \[ 7775.761904\] iommu: Removing device 0000:00:1f.3 from group 15
 
-### \[ 7781.493782\] pci 0000:00:1f.3: \[8086:a171\] type 00 class 0x040300
+#### \[ 7781.493782\] pci 0000:00:1f.3: \[8086:a171\] type 00 class 0x040300
 
-### \[ 7781.493836\] pci 0000:00:1f.3: reg 0x10: \[mem 0x2fff020000-0x2fff023fff 64bit\]
+#### \[ 7781.493836\] pci 0000:00:1f.3: reg 0x10: \[mem 0x2fff020000-0x2fff023fff 64bit\]
 
-### \[ 7781.493882\] pci 0000:00:1f.3: reg 0x20: \[mem 0x2fff000000-0x2fff00ffff 64bit\]
+#### \[ 7781.493882\] pci 0000:00:1f.3: reg 0x20: \[mem 0x2fff000000-0x2fff00ffff 64bit\]
 
-### \[ 7781.493998\] pci 0000:00:1f.3: PME# supported from D3hot D3cold
+#### \[ 7781.493998\] pci 0000:00:1f.3: PME# supported from D3hot D3cold
 
-### \[ 7781.494798\] iommu: Adding device 0000:00:1f.3 to group 23 \<-------------------------------- new iommu group
+#### \[ 7781.494798\] iommu: Adding device 0000:00:1f.3 to group 23 \<-------------------------------- new iommu group
 
-### \[ 7781.506679\] pci 0000:00:1f.3: BAR 4: assigned \[mem 0x2000000000-0x200000ffff 64bit\]
+#### \[ 7781.506679\] pci 0000:00:1f.3: BAR 4: assigned \[mem 0x2000000000-0x200000ffff 64bit\]
 
-### \[ 7781.506732\] pci 0000:00:1f.3: BAR 0: assigned \[mem 0x2000010000-0x2000013fff 64bit\]
+#### \[ 7781.506732\] pci 0000:00:1f.3: BAR 0: assigned \[mem 0x2000010000-0x2000013fff 64bit\]
 
-### 
+###
 
-### 
+###
 
-### \[root@localhost ~\]# /datastore/iommu/iommu_check.sh \| grep "Group 23"
+#### \[root@localhost ~\]# /datastore/iommu/iommu_check.sh \| grep "Group 23"
 
-### IOMMU Group 23 00:1f.3 Audio device \[0403\]: Intel Corporation CM238 HD Audio Controller \[8086:a171\] (rev 31)
+#### IOMMU Group 23 00:1f.3 Audio device \[0403\]: Intel Corporation CM238 HD Audio Controller \[8086:a171\] (rev 31)
 
 #### So only the onboard audio device is in this group now, and what we need.
 
@@ -864,137 +864,137 @@ hook, based on the documentation.
 
 ## 11.1 Create a folder named “hooks” (libvirt is already programmed to call hooks inside this folder if it exists )
 
-### mkdir /etc/libvirt/hooks
+#### mkdir /etc/libvirt/hooks
 
 ## 11.2 Create the daemon Hook. This hook will be called after libvirt is started:
 
-### cd /etc/libvirt/hooks
+#### cd /etc/libvirt/hooks
 
-### vi daemon
+#### vi daemon
 
 #### Paste lines below. Depending on your system, you may need to change the PCI Addresses for the devices you want:
 
-### \#!/bin/bash
+#### \#!/bin/bash
 
-### if \[\[ \$1 == "-" \]\] && \[\[ \$2 == "start" \]\]
+#### if \[\[ \$1 == "-" \]\] && \[\[ \$2 == "start" \]\]
 
-### then
+#### then
 
-### echo 1 \> /sys/bus/pci/devices/0000\\01\\00.0/remove
+#### echo 1 \> /sys/bus/pci/devices/0000\\01\\00.0/remove
 
-### echo 1 \> /sys/bus/pci/devices/0000\\01\\00.1/remove
+#### echo 1 \> /sys/bus/pci/devices/0000\\01\\00.1/remove
 
-### echo 1 \> /sys/bus/pci/devices/0000\\00\\1f.3/remove
+#### echo 1 \> /sys/bus/pci/devices/0000\\00\\1f.3/remove
 
-### echo 1 \> /sys/bus/pci/devices/0000\\00\\14.0/remove
+#### echo 1 \> /sys/bus/pci/devices/0000\\00\\14.0/remove
 
-### echo 1 \> /sys/bus/pci/devices/0000\\00\\14.2/remove
+#### echo 1 \> /sys/bus/pci/devices/0000\\00\\14.2/remove
 
-### echo 1 \> /sys/bus/pci/rescan
+#### echo 1 \> /sys/bus/pci/rescan
 
-### cpupower frequency-set --governor performance
+#### cpupower frequency-set --governor performance
 
-### fi
+#### fi
 
 ## 11.3 Create the qemu Hook. This hook will be called after any VM action is performed. What it does is mainly shutdown host when both guest VM’s are turned off:
 
-### I left out the “shutdown now” line commented for testing purposes. Uncomment it to shutdown the host.
+#### I left out the “shutdown now” line commented for testing purposes. Uncomment it to shutdown the host.
 
-### vi qemu
+#### vi qemu
 
-### 
+###
 
-### \#!/bin/bash
+#### \#!/bin/bash
 
-### \#\$1 - VM name (Domain)
+#### \#\$1 - VM name (Domain)
 
-### \#\$2 - function received ( prepare, start, started, stopped, release, migrate, reconnect, attach )
+#### \#\$2 - function received ( prepare, start, started, stopped, release, migrate, reconnect, attach )
 
-### \#\$3 - action (begin, end)
+#### \#\$3 - action (begin, end)
 
-### 
+###
 
-### \#Hook Code to turn off host when last guest is shutdown:
+#### \#Hook Code to turn off host when last guest is shutdown:
 
-### 
+###
 
-### if \[\[ \$2 == "prepare" \]\] && \[\[ \$3 == "begin" \]\]
+#### if \[\[ \$2 == "prepare" \]\] && \[\[ \$3 == "begin" \]\]
 
-### then
+#### then
 
-###  echo "Do Nothing" 2\> /dev/null
+####  echo "Do Nothing" 2\> /dev/null
 
-### elif \[\[ \$2 == "start" \]\] && \[\[ \$3 == "begin" \]\]
+#### elif \[\[ \$2 == "start" \]\] && \[\[ \$3 == "begin" \]\]
 
-###  then
+####  then
 
-###  touch /etc/libvirt/hooks/\$1_running
+####  touch /etc/libvirt/hooks/\$1_running
 
-### elif \[\[ \$2 == "started" \]\] && \[\[ \$3 == "begin" \]\]
+#### elif \[\[ \$2 == "started" \]\] && \[\[ \$3 == "begin" \]\]
 
-### then
+#### then
 
-###  echo "Do Nothing" 2\> /dev/null
+####  echo "Do Nothing" 2\> /dev/null
 
-### elif \[\[ \$2 == "stopped" \]\] && \[\[ \$3 == "end" \]\]
+#### elif \[\[ \$2 == "stopped" \]\] && \[\[ \$3 == "end" \]\]
 
-### then
+#### then
 
-###  rm -f /etc/libvirt/hooks/\$1_running
+####  rm -f /etc/libvirt/hooks/\$1_running
 
-### elif \[\[ \$2 == "release" \]\] && \[\[ \$3 == "end" \]\]
+#### elif \[\[ \$2 == "release" \]\] && \[\[ \$3 == "end" \]\]
 
-### then
+#### then
 
-###  \#make vm qcow2 files available on /datastore samba share as soon as this guest is turned off
+####  \#make vm qcow2 files available on /datastore samba share as soon as this guest is turned off
 
-###  sudo restorecon -Rv /datastore/vms
+####  sudo restorecon -Rv /datastore/vms
 
-###  \#on last guest shutdown, shutdown host
+####  \#on last guest shutdown, shutdown host
 
-###  count=\$(ls /etc/libvirt/hooks/\*running\* 2\>/dev/null \| wc -l ) 
+####  count=\$(ls /etc/libvirt/hooks/\*running\* 2\>/dev/null \| wc -l )
 
-###  if \[\[ \$count == 0 \]\] \#If there are no remaining running guests
+####  if \[\[ \$count == 0 \]\] \#If there are no remaining running guests
 
-###  then
+####  then
 
-###  echo "Do Nothing" 2\> /dev/null
+####  echo "Do Nothing" 2\> /dev/null
 
-###  \#shutdown now
+####  \#shutdown now
 
-###  fi
+####  fi
 
-### fi
+#### fi
 
 ## 11.4 Mark these hooks executable
 
-### chmod 755 /etc/libvirt/hooks/daemon
+#### chmod 755 /etc/libvirt/hooks/daemon
 
-### chmod 755 /etc/libvirt/hooks/qemu
+#### chmod 755 /etc/libvirt/hooks/qemu
 
 ## 11.5 Install cpupower that daemon hook depends on which is inside the kernel-tools package:
 
-### sudo dnf install kernel-tools 
+#### sudo dnf install kernel-tools
 
-#### For now, before restarting the host, and in order to avoid dmesg error's like 
+#### For now, before restarting the host, and in order to avoid dmesg error's like
 
-### BAR 0: can't reserve \[mem....\]
+#### BAR 0: can't reserve \[mem....\]
 
 #### You can execute the daemon hook instructions manually for this session:
 
-### echo 1 \> /sys/bus/pci/devices/0000\\01\\00.0/remove
+#### echo 1 \> /sys/bus/pci/devices/0000\\01\\00.0/remove
 
-### echo 1 \> /sys/bus/pci/devices/0000\\01\\00.1/remove
+#### echo 1 \> /sys/bus/pci/devices/0000\\01\\00.1/remove
 
-### echo 1 \> /sys/bus/pci/devices/0000\\00\\1f.3/remove
+#### echo 1 \> /sys/bus/pci/devices/0000\\00\\1f.3/remove
 
-### echo 1 \> /sys/bus/pci/devices/0000\\00\\14.0/remove
+#### echo 1 \> /sys/bus/pci/devices/0000\\00\\14.0/remove
 
-### echo 1 \> /sys/bus/pci/devices/0000\\00\\14.2/remove
+#### echo 1 \> /sys/bus/pci/devices/0000\\00\\14.2/remove
 
-### echo 1 \> /sys/bus/pci/rescan
+#### echo 1 \> /sys/bus/pci/rescan
 
-### cpupower frequency-set --governor performance
+#### cpupower frequency-set --governor performance
 
 # Step 12. Create firewall rules for needed services
 
@@ -1002,15 +1002,15 @@ hook, based on the documentation.
 
 #### Before starting the VM and to be able to connect to it remotely and install the OS, we need to connect to it using another computer on the network and using VNC Viewer ( VM XML is configured to use VNC using host ip on communications port 5901 ). So let's set the VNC allow firewall rule on the host first:
 
-### firewall-cmd --list-all-zones \| grep "active"
+#### firewall-cmd --list-all-zones \| grep "active"
 
 #### Returns FedoraServer as active profile, so use it like this:
 
-### firewall-cmd --zone=FedoraServer --add-port=5901/tcp --permanent
+#### firewall-cmd --zone=FedoraServer --add-port=5901/tcp --permanent
 
-### firewall-cmd --zone=FedoraServer --add-port=5902/tcp --permanent
+#### firewall-cmd --zone=FedoraServer --add-port=5902/tcp --permanent
 
-### sudo firewall-cmd –reload
+#### sudo firewall-cmd –reload
 
 # Step 13. Configure the host virtual network bridge
 
@@ -1018,133 +1018,133 @@ hook, based on the documentation.
 
 ## 13.1 Delete the default libvirt virtual networks
 
-### virsh net-destroy default
+#### virsh net-destroy default
 
-### virsh net-undefine default
+#### virsh net-undefine default
 
 ## 13.2 Delete all bridge connection. The GUID here is what you get after correctly identifying the connection with nmcli con show:
 
-### nmcli connection delete GUID 872c5ff0-30b8-4a6e-bbe8-5171714d7d19
+#### nmcli connection delete GUID 872c5ff0-30b8-4a6e-bbe8-5171714d7d19
 
 ## 13.3 Create new bridge
 
 #### First, select network interface to be used for bridging
 
-#### Given the fact that we are passing trough the PCI device located at 05:00.0, 
+#### Given the fact that we are passing trough the PCI device located at 05:00.0,
 
 #### We need to check what is the descriptor for this device and *use the other one, like this:*
 
-### \[root@localhost ~\]# find /sys/ \| grep 05:00.0 \| grep net \| grep flags
+#### \[root@localhost ~\]# find /sys/ \| grep 05:00.0 \| grep net \| grep flags
 
-### /sys/devices/pci0000:00/0000:00:1c.1/0000:05:00.0/net/enp5s0/flags
+#### /sys/devices/pci0000:00/0000:00:1c.1/0000:05:00.0/net/enp5s0/flags
 
 #### So 05:00.0 is for the enp5s0, so we have to *use the other adapter* as we will be using the enp5s0 for passtrough to the VM.
 
 #### Make sure your network adapter to be bridge is online:
 
-### \[root@localhost ~\]# nmcli con show
+#### \[root@localhost ~\]# nmcli con show
 
-### NAME UUID TYPE DEVICE
+#### NAME UUID TYPE DEVICE
 
-### eno1 2684cd48-14cd-31ca-a3cb-fd3d8a72d115 ethernet eno1 \<------ so let’s bridge this one
+#### eno1 2684cd48-14cd-31ca-a3cb-fd3d8a72d115 ethernet eno1 \<------ so let’s bridge this one
 
-### enp5s0 d8decf57-1827-348f-8e23-82a4cc4d2eed ethernet enp5s0
+#### enp5s0 d8decf57-1827-348f-8e23-82a4cc4d2eed ethernet enp5s0
 
-### 
+###
 
 #### Keep in mind your connection to the host may drop during this process.
 
-### nmcli con add ifname br0 type bridge con-name br0
+#### nmcli con add ifname br0 type bridge con-name br0
 
-### nmcli con add type bridge-slave ifname eno1 master br0
+#### nmcli con add type bridge-slave ifname eno1 master br0
 
-### nmcli con modify br0 bridge.stp no
+#### nmcli con modify br0 bridge.stp no
 
-### nmcli con show
+#### nmcli con show
 
-### nmcli con down eno1 && nmcli con up br0
+#### nmcli con down eno1 && nmcli con up br0
 
 #### Expected working output is:
 
-### \[root@localhost ~\]# nmcli con show
+#### \[root@localhost ~\]# nmcli con show
 
-### NAME UUID TYPE DEVICE
+#### NAME UUID TYPE DEVICE
 
-### br0 6d8cdbcb-9693-4f07-89bf-2c7621beeeb6 bridge br0
+#### br0 6d8cdbcb-9693-4f07-89bf-2c7621beeeb6 bridge br0
 
-### bridge-slave-eno1 ea1f2dc9-19ff-4f11-8685-d49fbc72c99f ethernet eno1
+#### bridge-slave-eno1 ea1f2dc9-19ff-4f11-8685-d49fbc72c99f ethernet eno1
 
-### enp5s0 d8decf57-1827-348f-8e23-82a4cc4d2eed ethernet enp5s0
+#### enp5s0 d8decf57-1827-348f-8e23-82a4cc4d2eed ethernet enp5s0
 
-### eno1 2684cd48-14cd-31ca-a3cb-fd3d8a72d115 ethernet --
+#### eno1 2684cd48-14cd-31ca-a3cb-fd3d8a72d115 ethernet --
 
-### 
+###
 
 #### Create a new file /tmp/host-bridge.xml and paste the following lines:
 
-### \<network connections='1'\>
+#### \<network connections='1'\>
 
-###  \<name\>host-bridge\</name\>
+####  \<name\>host-bridge\</name\>
 
-###  \<forward mode='bridge'/\>
+####  \<forward mode='bridge'/\>
 
-###  \<bridge name='br0'/\>
+####  \<bridge name='br0'/\>
 
-### \</network\>
+#### \</network\>
 
 ## 13.4 Define it and set it to autostart
 
-### virsh net-define /tmp/host-bridge.xml
+#### virsh net-define /tmp/host-bridge.xml
 
-### virsh net-autostart host-bridge
+#### virsh net-autostart host-bridge
 
-### virsh net-start host-bridge
+#### virsh net-start host-bridge
 
 ## 13.5 Verify
 
-### virsh net-list –all
+#### virsh net-list –all
 
 # Step 14. Start the VMs and create a Windows Mapped Drive to the Host datastore share.
 
 ## 14.1 Make a copy of the OVMF_VARS.fd for the new VMs
 
-### cp /usr/share/OVMF/OVMF_VARS.fd /var/lib/libvirt/qemu/nvram/fluido_VARS.fd
+#### cp /usr/share/OVMF/OVMF_VARS.fd /var/lib/libvirt/qemu/nvram/fluido_VARS.fd
 
-### cp /usr/share/OVMF/OVMF_VARS.fd /var/lib/libvirt/qemu/nvram/joia_VARS.fd
+#### cp /usr/share/OVMF/OVMF_VARS.fd /var/lib/libvirt/qemu/nvram/joia_VARS.fd
 
 ## 14.2 Update your kvm.conf
 
-### options kvm_amd avic=1
+#### options kvm_amd avic=1
 
-### options kvm ignore_msrs=1
+#### options kvm ignore_msrs=1
 
-### options kvm report_ignored_msrs=0
+#### options kvm report_ignored_msrs=0
 
-### 
+###
 
 ## 14.3 set virtual machines to autostart (for testing purposes you may want to skip this step)
 
-### virsh autostart fluido
+#### virsh autostart fluido
 
-### virsh autostart joia
+#### virsh autostart joia
 
 ## 14.4 Finally start the VM's
 
-### virsh start fluido
+#### virsh start fluido
 
-### virsh start joia
+#### virsh start joia
 
 #### Once inside your guest Windows, you can map datastore drive persistently, for that, change the line for your host IP’s network card that you are not passing trough
 
 #### (and make this IP static to always work). Execute this using Powershell. (Don’t run as admin) :
 
-### New-PSDrive -Name "H" -Root "\\192.168.89.228\datastore" -PSProvider FileSystem -Scope Local -Persist:\$true -Description Datastore
+#### New-PSDrive -Name "H" -Root "\\192.168.89.228\datastore" -PSProvider FileSystem -Scope Local -Persist:\$true -Description Datastore
 
-### \$shell = New-Object -ComObject Shell.Application
+#### \$shell = New-Object -ComObject Shell.Application
 
-### \$shell.NameSpace("H:").Self.Name = "Datastore"
+#### \$shell.NameSpace("H:").Self.Name = "Datastore"
 
-### 
+###
 
 # Step 15. Installing iGD and Radeon RX Vega M RH Drivers
 
@@ -1160,7 +1160,7 @@ hook, based on the documentation.
 
 # Step 16. Practical “Benchmarks”
 
-#### 
+####
 
 #### I am not a gamer ( neither big or small ) but I will throw in a (very shy) Time Spy benchmark result for this setup.
 
@@ -1180,11 +1180,11 @@ hook, based on the documentation.
 
 ## 17.2 Undefine vm fails with nvram error
 
-### \[root@localhost ~\]# sudo virsh undefine fluido
+#### \[root@localhost ~\]# sudo virsh undefine fluido
 
-### error: Failed to undefine domain fluido
+#### error: Failed to undefine domain fluido
 
-### error: Requested operation is not valid: cannot undefine domain with nvram
+#### error: Requested operation is not valid: cannot undefine domain with nvram
 
 ####  1. sudo virsh edit fluido
 
@@ -1192,23 +1192,23 @@ hook, based on the documentation.
 
 ## 17.3 virt-install fails with command not found:
 
-#### While issuing this command if you get: 
+#### While issuing this command if you get:
 
-### -bash: --host-device: command not found
+#### -bash: --host-device: command not found
 
 ####  1. check if there are no spaces after the "\\ slash
 
 ## 17.4 virsh fails to start guest lacking a var store:
 
-### \[root@localhost ~\]# sudo virsh start fluido
+#### \[root@localhost ~\]# sudo virsh start fluido
 
-### error: Failed to start domain fluido
+#### error: Failed to start domain fluido
 
-### error: operation failed: unable to find any master var store for loader: /usr/share/OVMF/OVMF_CODE.fd
+#### error: operation failed: unable to find any master var store for loader: /usr/share/OVMF/OVMF_CODE.fd
 
 #### 1. make a copy of existing VARS:
 
-###  cp /usr/share/OVMF/OVMF_VARS.fd /var/lib/libvirt/qemu/nvram/fluido_VARS.fd
+####  cp /usr/share/OVMF/OVMF_VARS.fd /var/lib/libvirt/qemu/nvram/fluido_VARS.fd
 
 ## 17.5 You see nf_conntrack warnings after reboot:
 
@@ -1216,31 +1216,31 @@ hook, based on the documentation.
 
 #### For a quick fix workaround you can disable
 
-### vi /etc/firewalld/firewalld.conf
+#### vi /etc/firewalld/firewalld.conf
 
-### AutomaticHelpers=yes
+#### AutomaticHelpers=yes
 
 ## 17.6 Error: 'enp5s0' is not an active connection.
 
-### \[root@localhost ~\]# nmcli con down enp5s0
+#### \[root@localhost ~\]# nmcli con down enp5s0
 
-### Error: 'enp5s0' is not an active connection.
+#### Error: 'enp5s0' is not an active connection.
 
-### Error: no active connection provided.
+#### Error: no active connection provided.
 
-### \[root@localhost ~\]# nmcli con up enp5s0
+#### \[root@localhost ~\]# nmcli con up enp5s0
 
-### Error: Connection activation failed: No suitable device found for this connection.
+#### Error: Connection activation failed: No suitable device found for this connection.
 
 ## 17.7 Extra content at the end of the document
 
-### \[root@localhost vms\]# virsh define /datastore/vms/xml/test.xml
+#### \[root@localhost vms\]# virsh define /datastore/vms/xml/test.xml
 
-### error: Failed to define domain from /datastore/vms/xml/test.xml
+#### error: Failed to define domain from /datastore/vms/xml/test.xml
 
-### error: (domain_definition):118: Extra content at the end of the document
+#### error: (domain_definition):118: Extra content at the end of the document
 
-### \<domain type="kvm"\>
+#### \<domain type="kvm"\>
 
 #### Delete the file: /datastore/vms/xml/test.xml and your created qcow2 file and define again.
 
@@ -1266,7 +1266,7 @@ hook, based on the documentation.
 
 #### ![](./media/image32.png)
 
-#### This may happen to you occasionally while shutting down the VM if you have the datastore share mapped. 
+#### This may happen to you occasionally while shutting down the VM if you have the datastore share mapped.
 
 # Step 18. Other interesting stuff:
 
@@ -1274,33 +1274,33 @@ hook, based on the documentation.
 
 #### Audio OnBoard example
 
-### lspci -v -s 00:1f.3
+#### lspci -v -s 00:1f.3
 
-### 
+###
 
-### 00:1f.3 Audio device: Intel Corporation CM238 HD Audio Controller (rev 31)
+#### 00:1f.3 Audio device: Intel Corporation CM238 HD Audio Controller (rev 31)
 
-###  Subsystem: Intel Corporation Device 2073
+####  Subsystem: Intel Corporation Device 2073
 
-###  Flags: bus master, fast devsel, latency 32, IRQ 16
+####  Flags: bus master, fast devsel, latency 32, IRQ 16
 
-###  Memory at 2000220000 (64-bit, non-prefetchable) \[size=16K\]
+####  Memory at 2000220000 (64-bit, non-prefetchable) \[size=16K\]
 
-###  Memory at 2000210000 (64-bit, non-prefetchable) \[size=64K\]
+####  Memory at 2000210000 (64-bit, non-prefetchable) \[size=64K\]
 
-###  Capabilities: \[50\] Power Management version 3
+####  Capabilities: \[50\] Power Management version 3
 
-###  Capabilities: \[60\] MSI: Enable- Count=1/1 Maskable- 64bit+ \<----------------- Enable- means not in use
+####  Capabilities: \[60\] MSI: Enable- Count=1/1 Maskable- 64bit+ \<----------------- Enable- means not in use
 
-###  Kernel driver in use: vfio-pci
+####  Kernel driver in use: vfio-pci
 
 #### GPU example
 
-### lspci -v -s 1:00.0
+#### lspci -v -s 1:00.0
 
-### Capabilities: \[68\] MSI: Enable+ Count=1/1 Maskable- 64bit+
+#### Capabilities: \[68\] MSI: Enable+ Count=1/1 Maskable- 64bit+
 
-### 
+###
 
 #### So, as soon as you start the VM if your device has MSI capabilities your device will change to Enable+
 
@@ -1308,21 +1308,21 @@ hook, based on the documentation.
 
 ## Have the GPU card turn back to the host after the VM shutdown respectively. This is not sufficient:
 
-### sudo lshw -C display \> /dev/null 2\>&1
+#### sudo lshw -C display \> /dev/null 2\>&1
 
-### systemctl restart display-manager.service
+#### systemctl restart display-manager.service
 
-###  virsh nodedev-reattach pci_0000_01_00_1
+####  virsh nodedev-reattach pci_0000_01_00_1
 
-### virsh nodedev-reattach pci_0000_01_00_0
+#### virsh nodedev-reattach pci_0000_01_00_0
 
-### echo 1 \> /sys/class/vtconsole/vtcon0/bind
+#### echo 1 \> /sys/class/vtconsole/vtcon0/bind
 
-### echo "efi-framebuffer.0" \> /sys/bus/platform/drivers/efi-framebuffer/bind
+#### echo "efi-framebuffer.0" \> /sys/bus/platform/drivers/efi-framebuffer/bind
 
-### echo 1 \> /sys/bus/pci/rescan
+#### echo 1 \> /sys/bus/pci/rescan
 
-### 
+###
 
 #### Workaround: Install Putty on each guest to manage the host ( or use cockpit terminal) and use hooks implemented here to shutdown the host when both guests are off.
 
@@ -1358,28 +1358,28 @@ hook, based on the documentation.
 
 ##### While there is certainly a generous learning curve for KVM Virtualization in Linux the benefits outweighed the time invested.
 
-##### Perhaps Intel will fix ACS for future NUC products. 
+##### Perhaps Intel will fix ACS for future NUC products.
 
 ##### In the end, you can just set and forget with Linux, and use your favorite OS on top of your hypervisor.
 
 ##### Perhaps this guide will help boost Hades Canyon sales, or, perhaps VMWare will use this guide to improve future versions of ESXI.
 
-##### 
+#####
 
 ##### Having passed that learning curve, and from what I have seen, I don’t really need another Hypervisor now, and this one is free.
 
-##### 
+#####
 
 ##### Many thanks for reading!
 
 ##### If you have any questions feel free to comment, I will do my best to reply, when possible.
 
-##### There was a lot of work put into creating this guide, so i hope you have succeeded, as I did. 
+##### There was a lot of work put into creating this guide, so i hope you have succeeded, as I did.
 
-##### 
+#####
 
 ##### If, so, don’t forget to show your appreciation!
 
-##### 
+#####
 
 ##### Happy Passthrough!
